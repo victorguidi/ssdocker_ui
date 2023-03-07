@@ -3,13 +3,14 @@
 
 	let servers: any = { servers: [0, 1] };
 	let docker: any;
-	let dockerData: any = [];
+	let dockerData: any = { containers: [] };
 	let runningDocker: number = 0;
-	let dockerLogs: any = [];
+	let dockerLogs: any = { logs: '' };
 	let currentServer: string | null = null;
 	let currentDockerId: string | null = null;
 
 	onMount(async () => {
+		// cleanup the subscription when the component is destroyed
 		const rs = await fetch('http://localhost:8080/api/servers');
 		servers = await rs.json();
 		const rd = await fetch('http://localhost:8080/api/dockers');
@@ -46,8 +47,9 @@
 	};
 
 	const handlePost = async (request: Request) => {
-		dockerData = null;
-		dockerLogs = null;
+		runningDocker = 0;
+		dockerData = { containers: [] };
+		dockerLogs = { logs: '' };
 		document.getElementById('logs')!.innerHTML = '';
 		const payload = { server: request.url, command: request.body };
 		const response = await fetch('http://localhost:8080/api/send', {
@@ -58,10 +60,15 @@
 			body: JSON.stringify(payload)
 		});
 		dockerData = await response.json();
-		runningDocker = dockerData.containers.filter((container: any) =>
-			container.status.includes('Up')
-		);
+		if (dockerData.containers == null) dockerData.containers = [];
+		runningDocker = dockerData.containers.reduce((acc: number, curr: any) => {
+			if (curr.status.includes('Up')) {
+				acc++;
+			}
+			return acc;
+		}, 0);
 		currentServer = request.url;
+		console.log(runningDocker);
 	};
 
 	const handlePostLogs = async (request: Request) => {
@@ -134,15 +141,15 @@
 			<div class="flex flex-col h-1/5 p-4 justify-between text-white">
 				<h1>
 					Total Dockers:
-					{dockerData == null ? 0 : dockerData.containers}
+					{dockerData.containers.length}
 				</h1>
 				<h1>
 					Docker Runnings:
-					{runningDocker}
+					{dockerData.containers.length - runningDocker}
 				</h1>
 				<h1>
 					Docker Stopped:
-					{dockerData == null ? 0 : dockerData.containers - runningDocker}
+					{dockerData.containers.length - runningDocker}
 				</h1>
 			</div>
 		</div>
