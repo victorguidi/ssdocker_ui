@@ -50,17 +50,16 @@ In case you get an error related to the ssh Key Algorithms, there is a block in 
     HostKeyCallback:   hostKeyCallback,
     HostKeyAlgorithms: []string{ssh.KeyAlgoED25519},
   }
+```
 
 For now you will have to play aroung with different algorithms, like the ones bellow: 
 
-	- KeyAlgoRSA        = "ssh-rsa"
-	- KeyAlgoDSA        = "ssh-dss"
-	- KeyAlgoECDSA256   = "ecdsa-sha2-nistp256"
-	- KeyAlgoSKECDSA256 = "sk-ecdsa-sha2-nistp256@openssh.com"
-	- KeyAlgoECDSA384   = "ecdsa-sha2-nistp384"
-	- KeyAlgoECDSA521   = "ecdsa-sha2-nistp521"
-	- KeyAlgoED25519    = "ssh-ed25519"
-	- KeyAlgoSKED25519  = "sk-ssh-ed25519@openssh.com"
-
-```
+  - KeyAlgoRSA        = "ssh-rsa"
+  - KeyAlgoDSA        = "ssh-dss"
+  - KeyAlgoECDSA256   = "ecdsa-sha2-nistp256"
+  - KeyAlgoSKECDSA256 = "sk-ecdsa-sha2-nistp256@openssh.com"
+  - KeyAlgoECDSA384   = "ecdsa-sha2-nistp384"
+  - KeyAlgoECDSA521   = "ecdsa-sha2-nistp521"
+  - KeyAlgoED25519    = "ssh-ed25519"
+  - KeyAlgoSKED25519  = "sk-ssh-ed25519@openssh.com"
 
