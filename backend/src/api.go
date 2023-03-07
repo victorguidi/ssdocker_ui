@@ -27,6 +27,7 @@ func (a *Api) Start() error {
 	http.HandleFunc("/api/dockers", a.GetDockers)
 	http.HandleFunc("/api/servers", a.GetServer)
 	http.HandleFunc("/api/send", a.SendCommands)
+	log.Println("Server started on port", a.Addr)
 	log.Fatal(http.ListenAndServe(a.Addr, nil))
 	return nil
 }

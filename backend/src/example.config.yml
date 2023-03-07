@@ -1,0 +1,6 @@
+host:
+  - <ip>
+  - 1.10.111.1 (for example)
+
+username: "username"
+password: "password"

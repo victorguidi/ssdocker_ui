@@ -1,2 +1,5 @@
 backend/src/config.yml
 backend/src/static/_app
+backend/ssdocker
+backend/src/ssdocker
+frontend/static
