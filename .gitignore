@@ -3,3 +3,5 @@ backend/src/static/_app
 backend/ssdocker
 backend/src/ssdocker
 frontend/static
+backend/src/static
+backend/src/static
