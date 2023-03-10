@@ -1,4 +1,4 @@
-host:
+hosts:
   - <ip>
   - 1.10.111.1 (for example)
 

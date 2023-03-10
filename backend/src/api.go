@@ -25,6 +25,7 @@ func (a *Api) Start() error {
 	mime.AddExtensionType(".js", "application/javascript")
 	http.Handle("/", http.FileServer(http.Dir("static")))
 	http.HandleFunc("/api/dockers", a.GetDockers)
+	http.HandleFunc("/api/images", a.GetImages)
 	http.HandleFunc("/api/servers", a.GetServer)
 	http.HandleFunc("/api/send", a.SendCommands)
 	log.Println("Server started on port", a.Addr)
@@ -85,6 +86,36 @@ func (a *Api) GetDockers(w http.ResponseWriter, r *http.Request) {
 			containers[i].Server = conn.Host
 		}
 		resp.Containers = append(resp.Containers, containers...)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	WriteJSON(w, resp)
+}
+
+func (a *Api) GetImages(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	type Response struct {
+		Images []Images `json:"images"`
+	}
+
+	resp := Response{}
+
+	for _, conn := range a.SshServer.SshConnection {
+		conn.Channel <- "docker images"
+		response := <-conn.Channel
+
+		images, err := ProcessCommandTwo(response)
+		if err != nil {
+			panic(err)
+		}
+		for i := range images {
+			images[i].Server = conn.Host
+		}
+		resp.Images = append(resp.Images, images...)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	WriteJSON(w, resp)

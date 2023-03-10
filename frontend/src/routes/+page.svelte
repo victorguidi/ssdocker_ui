@@ -3,6 +3,7 @@
 
 	let servers: any = { servers: [0, 1] };
 	let docker: any;
+	let images: any = { images: [] };
 	let dockerData: any = { containers: [] };
 	let runningDocker: number = 0;
 	let dockerLogs: any = { logs: '' };
@@ -15,6 +16,8 @@
 		servers = await rs.json();
 		const rd = await fetch('http://localhost:8080/api/dockers');
 		docker = await rd.json();
+		const ri = await fetch('http://localhost:8080/api/images');
+		images = await ri.json();
 	});
 
 	function formatLogs(logs: string) {
@@ -68,7 +71,6 @@
 			return acc;
 		}, 0);
 		currentServer = request.url;
-		console.log(runningDocker);
 	};
 
 	const handlePostLogs = async (request: Request) => {
@@ -99,6 +101,59 @@
 		modal!.classList.contains('hidden')
 			? modal!.classList.remove('hidden')
 			: modal!.classList.add('hidden');
+	};
+
+	const openModalRunDocker = () => {
+		const dockerName = document.getElementById('docker-name') as HTMLInputElement;
+		const dockerImage = document.getElementById('docker-image') as HTMLInputElement;
+		const dockerPortHost = document.getElementById('docker-port-host') as HTMLInputElement;
+		const dockerPortContainer = document.getElementById(
+			'docker-port-container'
+		) as HTMLInputElement;
+
+		dockerName.value = '';
+		dockerImage.value = '';
+		dockerPortHost.value = '';
+		dockerPortContainer.value = '';
+
+		const modal = document.getElementById('modal-run-docker');
+
+		modal!.classList.contains('hidden')
+			? modal!.classList.remove('hidden')
+			: modal!.classList.add('hidden');
+	};
+
+	const submitRun = async () => {
+		const dockerName = document.getElementById('docker-name') as HTMLInputElement;
+		const dockerImage = document.getElementById('docker-image') as HTMLInputElement;
+		const dockerPortHost = document.getElementById('docker-port-host') as HTMLInputElement;
+		const dockerPortContainer = document.getElementById(
+			'docker-port-container'
+		) as HTMLInputElement;
+
+		const payload = {
+			server: currentServer,
+			command: `docker run -d --name ${dockerName.value} -p ${dockerPortHost.value}:${dockerPortContainer.value} ${dockerImage.value}`
+		};
+
+		console.log(payload.command);
+
+		const response = await fetch('http://localhost:8080/api/send', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		});
+
+		const data = await response.json();
+
+		dockerName.value = '';
+		dockerImage.value = '';
+		dockerPortHost.value = '';
+		dockerPortContainer.value = '';
+
+		openModalRunDocker();
 	};
 </script>
 
@@ -192,12 +247,51 @@
 							})}>Restart</button
 					>
 					<button
-						class="flex text-white border rounded-lg h-16 items-center border-zinc-700 justify-center transition ease-in-out delay-10 hover:-translate-y-1 hover:scale-105 duration-300 disabled:click-events-none cursor-not-allowed"
-						>Rebuild</button
+						class="flex text-white border rounded-lg h-16 items-center border-zinc-700 justify-center transition ease-in-out delay-10 hover:-translate-y-1 hover:scale-105 duration-300"
+						on:click={openModalRunDocker}>Run</button
 					>
+					<div
+						id="modal-run-docker"
+						class="hidden fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 h-32 w-full/2 p-2 rounded-lg bg-zinc-800 text-white transition ease-in-out"
+					>
+						<div class="flex w-full h-full p-2 transition rounded-lg items-center justify-center">
+							<form class="flex flex-row mr-4" on:submit={submitRun}>
+								docker run --name=<input
+									id="docker-name"
+									type="text"
+									class="flex flex-row w-32 bg-zinc-800 border border-zinc-700"
+									required
+								/>
+								&nbsp -d -p &nbsp
+								<input
+									id="docker-port-host"
+									type="text"
+									class="flex flex-row w-20 bg-zinc-800 border border-zinc-700"
+									required
+								/>:<input
+									id="docker-port-container"
+									type="text"
+									class="flex flex-row w-20  bg-zinc-800 border border-zinc-700"
+									required
+								/>
+								&nbsp
+								<select
+									name="test"
+									id="docker-image"
+									class="flex flex-col w-32 bg-zinc-800 border border-zinc-700 mr-4"
+									>{#each images.images as image}
+										{#if image.server == currentServer}
+											<option value={image.repository}>{image.repository}</option>
+										{/if}
+									{/each}</select
+								>
+								<button type="submit">Run</button>
+							</form>
+						</div>
+					</div>
 					<button
 						class="flex text-white border rounded-lg h-16 items-center justify-center border-zinc-700 transition ease-in-out delay-10 hover:-translate-y-1 hover:scale-105 duration-300 disabled:click-events-none cursor-not-allowed"
-						>Access</button
+						>Rebuild</button
 					>
 					<button
 						class="flex text-white border rounded-lg h-16 items-center justify-center transition border-zinc-700 ease-in-out delay-10 hover:-translate-y-1 hover:scale-105 duration-300 disabled:click-events-none cursor-not-allowed"

@@ -63,3 +63,32 @@ func ProcessCommandOne(response string) ([]Container, error) {
 
 	return containers, nil
 }
+
+func ProcessCommandTwo(response string) ([]Images, error) {
+
+	lines := strings.Split(response, "\n")
+	lines = lines[1:]
+	for i, line := range lines {
+		lines[i] = regexp.MustCompile(" {2}").ReplaceAllString(line, ",")
+		lines[i] = regexp.MustCompile(",+").ReplaceAllString(lines[i], ",")
+	}
+
+	images := []Images{}
+	image := Images{}
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		split := strings.Split(line, ",")
+		image = Images{
+			Repository: split[0],
+			Tag:        split[1],
+			ImageID:    split[2],
+			Created:    split[3],
+			Size:       split[4],
+		}
+		images = append(images, image)
+	}
+
+	return images, nil
+}

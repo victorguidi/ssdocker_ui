@@ -28,6 +28,15 @@ type Container struct {
 	Server  string `json:"server"`
 }
 
+type Images struct {
+	Repository string `json:"repository"`
+	Tag        string `json:"tag"`
+	ImageID    string `json:"image_id"`
+	Created    string `json:"created"`
+	Size       string `json:"size"`
+	Server     string `json:"server"`
+}
+
 type SshConnection struct {
 	Host    string
 	Channel chan string
@@ -53,7 +62,7 @@ func (s *SshServer) Connect() error {
 					ssh.Password(s.User.Password),
 				},
 				HostKeyCallback:   ssh.InsecureIgnoreHostKey(),
-				HostKeyAlgorithms: []string{ssh.KeyAlgoED25519},
+				HostKeyAlgorithms: []string{ssh.KeyAlgoED25519, ssh.KeyAlgoRSA, ssh.KeyAlgoDSA, ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521},
 			}
 			c := make(chan string)
 			channels[i] = c
@@ -72,7 +81,7 @@ func (s *SshServer) Connect() error {
 					ssh.Password(s.User.Password),
 				},
 				HostKeyCallback:   hostKeyCallback,
-				HostKeyAlgorithms: []string{ssh.KeyAlgoED25519},
+				HostKeyAlgorithms: []string{ssh.KeyAlgoED25519, ssh.KeyAlgoRSA, ssh.KeyAlgoDSA, ssh.KeyAlgoECDSA256, ssh.KeyAlgoECDSA384, ssh.KeyAlgoECDSA521},
 			}
 			c := make(chan string)
 			channels[i] = c
