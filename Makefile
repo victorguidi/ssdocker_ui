@@ -6,7 +6,7 @@ FRONTEND_DIR := frontend
 BACKEND_DIR := backend
 
 # Define the build targets
-all: frontend-build backend-build
+all:check frontend-build backend-build
 
 # Test if golang and nodejs are installed
 check:
