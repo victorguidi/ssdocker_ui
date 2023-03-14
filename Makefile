@@ -15,8 +15,10 @@ check:
 
 # Build the frontend first
 frontend-build:
-	@cd $(FRONTEND_DIR) && pnpm run build
+	@cd $(FRONTEND_DIR) && npm install
+	@cd $(FRONTEND_DIR) && npm run build
 	# @cd $(FRONTEND_DIR) && npm run build
+	@test -d $(BACKEND_DIR)/src/static || mkdir $(BACKEND_DIR)/src/static
 	@cp -R $(FRONTEND_DIR)/static/* $(BACKEND_DIR)/src/static
 
 # Then build the backend
